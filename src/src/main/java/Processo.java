@@ -1,11 +1,36 @@
 package src.main.java;
 
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class Processo extends Thread {
 
+    private int id;
+
+    private String host;
+
+    private int port;
+
+    private double chance;
+
+    private int eventCount;
+
+    private int minDelay;
+
+    private int maxDelay;
+
+    private int[] relogio;
+
+    private List<String> otherProcesses;
 
     @Override
     public void run() {
+        int delay;
 
+        for (int i = 0; i < eventCount; i++) {
+            delay = ThreadLocalRandom.current().nextInt(minDelay, maxDelay);
+
+        }
     }
 
 
