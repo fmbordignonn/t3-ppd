@@ -1,16 +1,16 @@
 package src.main.java;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketException;
+import java.lang.reflect.Array;
+import java.net.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Processo extends Thread {
 
-    private final int id;
+    private final int idProcesso;
     private final String host;
     private final int port;
     private final double chance;
@@ -24,10 +24,12 @@ public class Processo extends Thread {
     private DatagramPacket packet;
     private final byte[] packetBytes = new byte[4028];
 
-    private List<String> otherProcesses;
+    private final String[] otherHosts;
+    private final int[] otherPorts;
 
-    public Processo(int id, String host, int port, int chance, int eventCount, int minDelay, int maxDelay, int[] relogio) throws SocketException {
-        this.id = id;
+
+    public Processo(int idProcesso, String host, int port, int chance, int eventCount, int minDelay, int maxDelay, int[] relogio) throws SocketException {
+        this.idProcesso = idProcesso;
         this.host = host;
         this.port = port;
         this.chance = chance;
@@ -38,6 +40,10 @@ public class Processo extends Thread {
 
         this.socket = new DatagramSocket(port);
 
+        /*
+            adicionar o processo atual nessa lista tbm, pq ai no recebimento conseguimos saber pelo host:port qual é o id
+            do processo que enviou
+        */
         //this.otherProcesses;
 
         throw new RuntimeException("faz a lista de processos");
@@ -46,7 +52,7 @@ public class Processo extends Thread {
     @Override
     public void run() {
         int delay;
-        String destination;
+        int destination;
 
         for (int i = 0; i < eventCount; i++) {
             delay = ThreadLocalRandom.current().nextInt(minDelay, maxDelay);
@@ -54,16 +60,23 @@ public class Processo extends Thread {
             //revisar dps
             if (ThreadLocalRandom.current().nextDouble(0, 1) < chance) {
 
-                ObjectMapper mapper = new ObjectMapper();
+                destination = ThreadLocalRandom.current().nextInt(otherHosts.length);
 
-                //packet = new DatagramPacket();
+                try {
+                    packet = new DatagramPacket(Arrays.toString(relogio).getBytes(), packetBytes.length,
+                            InetAddress.getByName(otherHosts[destination]), otherPorts[destination]);
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
 
+                relogio[idProcesso] = relogio[idProcesso]++;
 
                 continue;
             }
 
-            System.out.println("ROLOU EVENTO LOCAL");
-            relogio[id] = relogio[id]++;
+            System.out.println("Evento local " + Arrays.toString(relogio));
+
+            relogio[idProcesso] = relogio[idProcesso]++;
 
             try {
                 Thread.sleep(delay);
@@ -74,104 +87,60 @@ public class Processo extends Thread {
     }
 
 
+    public int getIdProcesso() {
+        return idProcesso;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public double getChance() {
+        return chance;
+    }
+
+    public int getEventCount() {
+        return eventCount;
+    }
+
+    public int getMinDelay() {
+        return minDelay;
+    }
+
+    public int getMaxDelay() {
+        return maxDelay;
+    }
+
+    public int[] getRelogio() {
+        return relogio;
+    }
+
+    public DatagramSocket getSocket() {
+        return socket;
+    }
+
+    public DatagramPacket getPacket() {
+        return packet;
+    }
+
+    public byte[] getPacketBytes() {
+        return packetBytes;
+    }
+
+    public String[] getOtherHosts() {
+        return otherHosts;
+    }
+
+    public int[] getOtherPorts() {
+        return otherPorts;
+    }
 }
 
-//
-//    private final int id;
-//
-//    private final String host;
-//
-//    private final int port;
-//
-//    private final int chance;
-//
-//    private int quantidadeEventos;
-//
-//    private final int min_delay;
-//
-//    private final int max_delay;
-//
-//    private final int[] relogio;
-//
-//    // NEED TO DEFINE FILE PATH
-//    private final String filePath = "C:\\Users\\feeel\\Desktop\\arquivo.txt";
-//
-//    public Processo(int id, String host, int port, int chance, int quantidadeEventos, int min_delay, int max_delay, int[] relogio) {
-//        this.id = id;
-//        this.host = host;
-//        this.port = port;
-//        this.chance = chance;
-//        this.quantidadeEventos = quantidadeEventos;
-//        this.min_delay = min_delay;
-//        this.max_delay = max_delay;
-//        this.relogio = relogio;
-//    }
-//
-//    @Override
-//    public void run() {
-//        System.out.println(id + " iniciado!");
-//        try {
-//            DatagramSocket socket = new DatagramSocket(port, InetAddress.getByName("localhost"));
-//
-//            socket.setSoTimeout(min_delay);
-//
-//            Evento[] events = new Evento[quantidadeEventos];
-//
-//            for (int i=0; i<quantidadeEventos; i++) {
-//                switch (events) {
-//                    case Evento.LOCAL:
-//                        System.out.println("Evento local: " + id + "relogio" + relogio);
-//                        break;
-//
-//                    case Evento.RECEBIMENTO:
-//                        byte[] bytesPacote = "LOCK".getBytes();
-//
-//                        DatagramPacket packet = new DatagramPacket(bytesPacote, bytesPacote.length, InetAddress.getByName("localhost"), coordenatorPort);
-//
-//
-//                        System.out.println("Mandando requisição de acesso...");
-//
-//                        socket.send(packet);
-//
-//                        String response = new String(packet.getData(), 0, packet.getLength());
-//
-//                        if (response.equals("ACK")) {
-//
-//                            List<String> lines = read();
-//
-//                            write(lines);
-//
-//                            bytesPacote = "UNLOCK".getBytes();
-//
-//                            System.out.println("Enviando resposta para liberar arquivo...");
-//
-//                            packet = new DatagramPacket(bytesPacote, bytesPacote.length, InetAddress.getByName("localhost"), coordenatorPort);
-//
-//                            socket.send(packet);
-//
-//                        }
-//                        System.out.println("Envio de mensagem: " + id + "relogio" + relogio + "destinatario:" + id);
-//                        break;
-//
-//                    case Evento.RECEBIMENTO:
-//                        DatagramPacket packet = new DatagramPacket(bytesPacote, bytesPacote.length, InetAddress.getByName("localhost"), coordenatorPort);
-//
-//                        socket.receive(packet);
-//
-//                        String response = new String(packet.getData(), 0, packet.getLength());
-//                        System.out.println("Recebimento mensagem: " + id + "relogio depois recebido: " + relogio + "enviador: " + id + "relogio + mensagem: " + relogio);
-//                        break;
-//
-//                    default:
-//                        throw new RuntimeException("deu merda");
-//                }
-//            }
-//            socket.setSoTimeout(max_delay);
-//        } catch(Exception ex){
-//            ex.printStackTrace();
-//        }
-//    }
-//
+
 //    private List<String> read() throws FileNotFoundException {
 //        Path path = Paths.get(filePath);
 //
