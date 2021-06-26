@@ -1,5 +1,7 @@
 package src.main.java;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -21,15 +23,49 @@ public class Processo extends Thread {
 
     private int[] relogio;
 
+    private DatagramSocket socket;
+
+    private DatagramPacket packet;
+
+    private byte[] packetBytes = new byte[4028];
+
     private List<String> otherProcesses;
+
+        public Processo(int id, String host, int port, int chance, int quantidadeEventos, int min_delay, int max_delay, int[] relogio) {
+        this.id = id;
+        this.host = host;
+        this.port = port;
+        this.chance = chance;
+        this.eventCount = quantidadeEventos;
+        this.minDelay = min_delay;
+        this.maxDelay = max_delay;
+        this.relogio = relogio;
+    }
 
     @Override
     public void run() {
         int delay;
+        String destination;
 
         for (int i = 0; i < eventCount; i++) {
             delay = ThreadLocalRandom.current().nextInt(minDelay, maxDelay);
 
+            //revisar dps
+            if (ThreadLocalRandom.current().nextDouble(0, 1) < chance) {
+                //packet = new DatagramPacket();
+
+
+                continue;
+            }
+
+            System.out.println("ROLOU EVENTO LOCAL");
+            relogio[id] = relogio[id]++;
+
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

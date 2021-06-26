@@ -6,7 +6,6 @@ public class Main {
 
         System.out.println("controlar aqui o inicio de todos processos");
 
-
-        new Processo().start();
+        //new Processo().start();
     }
 }
