@@ -1,45 +1,46 @@
 package src.main.java;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Processo extends Thread {
 
-    private int id;
+    private final int id;
+    private final String host;
+    private final int port;
+    private final double chance;
+    private final int eventCount;
+    private final int minDelay;
+    private final int maxDelay;
+    private final int[] relogio;
 
-    private String host;
-
-    private int port;
-
-    private double chance;
-
-    private int eventCount;
-
-    private int minDelay;
-
-    private int maxDelay;
-
-    private int[] relogio;
-
-    private DatagramSocket socket;
+    private final DatagramSocket socket;
 
     private DatagramPacket packet;
-
-    private byte[] packetBytes = new byte[4028];
+    private final byte[] packetBytes = new byte[4028];
 
     private List<String> otherProcesses;
 
-        public Processo(int id, String host, int port, int chance, int quantidadeEventos, int min_delay, int max_delay, int[] relogio) {
+    public Processo(int id, String host, int port, int chance, int eventCount, int minDelay, int maxDelay, int[] relogio) throws SocketException {
         this.id = id;
         this.host = host;
         this.port = port;
         this.chance = chance;
-        this.eventCount = quantidadeEventos;
-        this.minDelay = min_delay;
-        this.maxDelay = max_delay;
+        this.eventCount = eventCount;
+        this.minDelay = minDelay;
+        this.maxDelay = maxDelay;
         this.relogio = relogio;
+
+        this.socket = new DatagramSocket(port);
+
+        //this.otherProcesses;
+
+        throw new RuntimeException("faz a lista de processos");
     }
 
     @Override
@@ -52,6 +53,9 @@ public class Processo extends Thread {
 
             //revisar dps
             if (ThreadLocalRandom.current().nextDouble(0, 1) < chance) {
+
+                ObjectMapper mapper = new ObjectMapper();
+
                 //packet = new DatagramPacket();
 
 
