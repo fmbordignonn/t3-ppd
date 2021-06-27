@@ -28,7 +28,7 @@ public class Processo extends Thread {
     private final int[] otherPorts;
 
 
-    public Processo(int idProcesso, String host, int port, int chance, int eventCount, int minDelay, int maxDelay, int[] relogio) throws SocketException {
+    public Processo(int idProcesso, String host, int port, double chance, int eventCount, int minDelay, int maxDelay, String[] otherHosts, int[] otherPorts) throws SocketException {
         this.idProcesso = idProcesso;
         this.host = host;
         this.port = port;
@@ -36,7 +36,11 @@ public class Processo extends Thread {
         this.eventCount = eventCount;
         this.minDelay = minDelay;
         this.maxDelay = maxDelay;
-        this.relogio = relogio;
+
+        this.otherHosts = otherHosts;
+        this.otherPorts = otherPorts;
+
+        this.relogio = new int[otherHosts.length];
 
         this.socket = new DatagramSocket(port);
 
@@ -44,9 +48,6 @@ public class Processo extends Thread {
             adicionar o processo atual nessa lista tbm, pq ai no recebimento conseguimos saber pelo host:port qual é o id
             do processo que enviou
         */
-        //this.otherProcesses;
-
-        throw new RuntimeException("faz a lista de processos");
     }
 
     @Override
@@ -141,24 +142,3 @@ public class Processo extends Thread {
 }
 
 
-//    private List<String> read() throws FileNotFoundException {
-//        Path path = Paths.get(filePath);
-//
-//        File file = path.toFile();
-//
-//        FileReader fr = new FileReader(file);
-//
-//        BufferedReader reader = new BufferedReader(fr);
-//
-//        return reader.lines().collect(Collectors.toList());
-//    }
-//
-//    private void write(List<String> lines) throws IOException {
-//        for (int i = 0; i < 50; i++) {
-//            String line = processName + " - " + i + "\n";
-//
-//            lines.add(line);
-//            Files.write(Paths.get(filePath), line.getBytes(), StandardOpenOption.APPEND);
-//
-//        }
-//    }

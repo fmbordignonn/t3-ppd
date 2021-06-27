@@ -10,6 +10,8 @@ public class ReceiveMessage extends Thread {
 
     public DatagramSocket connectionSocket;
 
+
+
     @Override
     public void run() {
 
@@ -28,10 +30,10 @@ public class ReceiveMessage extends Thread {
                 //int clockValues[] = response.split(",");
 
 
-                int actualClockValues[] = Processo.getClockValues();
-                int otherProcessPorts [] = Processo.getProcessPorts();
+//                int actualClockValues[] = Processo.getClockValues();
+//                int otherProcessPorts [] = Processo.getProcessPorts();
 
-                int senderProcessID = Arrays.asList(otherProcessPorts).indexOf(senderProcessPort);
+                //int senderProcessID = Arrays.asList(otherProcessPorts).indexOf(senderProcessPort);
 
             } catch (IOException e) {
                 e.printStackTrace();
