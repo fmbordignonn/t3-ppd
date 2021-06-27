@@ -2,6 +2,7 @@ package src.main.java;
 
 //import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.*;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ public class Processo extends Thread {
     private final int[] relogio;
 
     private final DatagramSocket socket;
+    private final MulticastSocket multicastSocket;
 
     private DatagramPacket packet;
     private final byte[] packetBytes = new byte[4028];
@@ -28,7 +30,7 @@ public class Processo extends Thread {
     private final int[] otherPorts;
 
 
-    public Processo(int idProcesso, String host, int port, double chance, int eventCount, int minDelay, int maxDelay, String[] otherHosts, int[] otherPorts) throws SocketException {
+    public Processo(int idProcesso, String host, int port, double chance, int eventCount, int minDelay, int maxDelay, String[] otherHosts, int[] otherPorts) throws IOException {
         this.idProcesso = idProcesso;
         this.host = host;
         this.port = port;
@@ -43,6 +45,9 @@ public class Processo extends Thread {
         this.relogio = new int[otherHosts.length];
 
         this.socket = new DatagramSocket(port);
+        this.multicastSocket = new MulticastSocket(4000);
+
+
 
         /*
             adicionar o processo atual nessa lista tbm, pq ai no recebimento conseguimos saber pelo host:port qual é o id

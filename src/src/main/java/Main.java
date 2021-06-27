@@ -3,6 +3,10 @@ package src.main.java;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,17 +15,35 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Main {
-    public static void main(String[] args) throws FileNotFoundException, SocketException {
+    public static void main(String[] args) throws IOException {
 
-        int linhaDoArquivoIssoTemQueSerPorLinhaDeComando = 1;
+        if(args.length < 1){
+            throw new RuntimeException("args invalido");
+        }
+
+
+        MulticastSocket multicastSocket = new MulticastSocket(4000);
+        InetAddress grupo = InetAddress.getByName("localhost");
+        multicastSocket.joinGroup(grupo);
+        multicastSocket.setSoTimeout(100000);
+
+        List<String> lines = read("C:\\Users\\Felipe\\Desktop\\t3\\t3-ppd\\src\\src\\main\\java\\config.txt");
+        int processCount = lines.size();
+        int processID = 0;
+
+        try{
+            processID = Integer.parseInt(args[0]);
+        } catch (NumberFormatException ex) {
+            System.out.println("I'm a coordenator");
+            startAllProcess(processCount, multicastSocket, grupo);
+        }
+
 
         System.out.println("Iniciando app");
 
         System.out.println("controlar aqui o inicio de todos processos");
 
-        List<String> lines = read("C:\\Users\\Felipe\\Desktop\\t3\\t3-ppd\\src\\src\\main\\java\\config.txt");
-
-        String[] thisProcessConfig = lines.get(linhaDoArquivoIssoTemQueSerPorLinhaDeComando).split(" ");
+        String[] thisProcessConfig = lines.get(processID).split(" ");
 
         String[] otherHosts = new String[lines.size()];
         int[] otherPorts = new int[lines.size()];
@@ -40,7 +62,7 @@ public class Main {
 
         }
 
-        new Processo(
+        Processo processo = new Processo(
                 Integer.parseInt(thisProcessConfig[0]),
                 thisProcessConfig[1],
                 Integer.parseInt(thisProcessConfig[2]),
@@ -49,8 +71,68 @@ public class Main {
                 Integer.parseInt(thisProcessConfig[5]),
                 Integer.parseInt(thisProcessConfig[6]),
                 otherHosts,
-                otherPorts)
-                .start();
+                otherPorts);
+
+        String mensagem = "PROCESS READY";
+        byte[] bytes = new byte[1024];
+        bytes = mensagem.getBytes();
+        DatagramPacket pacote = new DatagramPacket(bytes, bytes.length, grupo, 5000);
+        multicastSocket.send(pacote);
+
+        while(true) {
+            try {
+                bytes = new byte[1024];
+                pacote = new DatagramPacket(bytes, bytes.length);
+                multicastSocket.receive(pacote);
+
+                mensagem = new String(pacote.getData(), 0, pacote.getLength());
+
+                if (mensagem.equals("START")) {
+                    break;
+                } else {
+                    System.out.println("");
+                    continue;
+                }
+            }catch (Exception ex) {
+                continue;
+            }
+        }
+
+        processo.start();
+
+    }
+
+    public static void startAllProcess(int processCount, MulticastSocket multicastSocket, InetAddress grupo) throws IOException {
+
+        DatagramPacket receivedPacket;
+        byte[] entrada;
+        String message;
+        int joinedProcess = 0;
+
+
+        // processCount + 1 because coordenator also join the group
+        while(joinedProcess != processCount + 1) {
+
+            entrada = new byte[1024];
+            receivedPacket = new DatagramPacket(entrada, entrada.length);
+            multicastSocket.receive(receivedPacket);
+            message = new String(receivedPacket.getData(), 0, receivedPacket.getLength());
+
+            if (message.equals("PROCESS READY")) {
+                joinedProcess++;
+            } else {
+                throw new RuntimeException("coordenator stoped");
+            }
+        }
+
+        message = "START";
+        byte[] saida = new byte[1024];
+        saida = message.getBytes();
+        DatagramPacket sendPacket = new DatagramPacket(saida, saida.length, grupo, 5000);
+        multicastSocket.send(sendPacket);
+
+        System.exit(1);
+
     }
 
     private static List<String> read(String filePath) throws FileNotFoundException {
