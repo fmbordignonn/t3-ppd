@@ -37,7 +37,6 @@ public class Main {
 
             otherHosts[i] = host;
             otherPorts[i] = port;
-
         }
 
         new Processo(

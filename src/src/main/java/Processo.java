@@ -2,13 +2,14 @@ package src.main.java;
 
 //import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Processo extends Thread {
+public final class Processo extends Thread {
 
     private final int idProcesso;
     private final String host;
@@ -43,11 +44,6 @@ public class Processo extends Thread {
         this.relogio = new int[otherHosts.length];
 
         this.socket = new DatagramSocket(port);
-
-        /*
-            adicionar o processo atual nessa lista tbm, pq ai no recebimento conseguimos saber pelo host:port qual é o id
-            do processo que enviou
-        */
     }
 
     @Override
@@ -58,26 +54,36 @@ public class Processo extends Thread {
         for (int i = 0; i < eventCount; i++) {
             delay = ThreadLocalRandom.current().nextInt(minDelay, maxDelay);
 
+            relogio[idProcesso] = relogio[idProcesso]++;
+
             //revisar dps
             if (ThreadLocalRandom.current().nextDouble(0, 1) < chance) {
 
-                destination = ThreadLocalRandom.current().nextInt(otherHosts.length);
+                do {
+                    destination = ThreadLocalRandom.current().nextInt(otherHosts.length);
+                }
+                while (destination == idProcesso);
 
                 try {
+
+                    System.out.println("ID processo: " + this.idProcesso +
+                            " Envio de mensagem " + Arrays.toString(this.relogio) +
+                            " ID destinatário: " + destination);
+
                     packet = new DatagramPacket(Arrays.toString(relogio).getBytes(), packetBytes.length,
                             InetAddress.getByName(otherHosts[destination]), otherPorts[destination]);
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
 
-                relogio[idProcesso] = relogio[idProcesso]++;
+                    socket.send(packet);
+
+                } catch (IOException ex) {
+                    System.out.println("Erro ao enviar msg para host remoto: " + ex.getMessage());
+                }
 
                 continue;
             }
 
-            System.out.println("Evento local " + Arrays.toString(relogio));
-
-            relogio[idProcesso] = relogio[idProcesso]++;
+            //evento local
+            System.out.println("ID processo: " + this.idProcesso + " Evento local " + Arrays.toString(relogio));
 
             try {
                 Thread.sleep(delay);
