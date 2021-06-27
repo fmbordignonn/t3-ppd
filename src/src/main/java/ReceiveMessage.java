@@ -3,40 +3,62 @@ package src.main.java;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.Arrays;
 
 
 public class ReceiveMessage extends Thread {
+    private Processo process;
 
-    public DatagramSocket connectionSocket;
-
+    public ReceiveMessage(Processo process) throws SocketException {
+        this.process = process;
+    }
 
 
     @Override
     public void run() {
-
         while (true) {
             try {
                 byte[] bytesPacote = new byte[1024];
                 DatagramPacket packet = new DatagramPacket(bytesPacote, bytesPacote.length);
-                connectionSocket.receive(packet);
 
+                this.process.getSocket().receive(packet);
+
+                InetAddress senderHost = packet.getAddress();
                 int senderProcessPort = packet.getPort();
 
+                // array new int[] {1,2,3,4} chega assim:
+                // [1, 2, 3, 4]
                 String response = new String(packet.getData(), 0, packet.getLength());
 
                 System.out.println("Recebido mensagem: " + response);
 
-                //int clockValues[] = response.split(",");
+                int[] receivedClock = Arrays.stream(response
+                        .replace("[", "")
+                        .replace("]", "")
+                        .split(", "))
+                        .mapToInt(Integer::parseInt)
+                        .toArray();
 
 
-//                int actualClockValues[] = Processo.getClockValues();
-//                int otherProcessPorts [] = Processo.getProcessPorts();
+                System.out.println("Print do recebimento de evento");
 
-                //int senderProcessID = Arrays.asList(otherProcessPorts).indexOf(senderProcessPort);
+                //soma evento
+                this.process.getRelogio()[this.process.getIdProcesso()] =
+                        this.process.getRelogio()[this.process.getIdProcesso()]++;
+
+                for (int i = 0; i < this.process.getRelogio().length; i++) {
+                    if (i == this.process.getIdProcesso()) {
+                        continue;
+                    }
+
+                    //pega do array
+                    this.process.getRelogio()[i] = receivedClock[i];
+                }
 
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 

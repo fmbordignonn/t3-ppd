@@ -38,6 +38,12 @@ public final class Processo extends Thread {
         this.minDelay = minDelay;
         this.maxDelay = maxDelay;
 
+
+        /*
+            adicionar o processo atual nessa lista tbm, pq ai no recebimento conseguimos saber pelo host:port qual é o id
+            do processo que enviou
+        */
+
         this.otherHosts = otherHosts;
         this.otherPorts = otherPorts;
 
@@ -45,13 +51,7 @@ public final class Processo extends Thread {
 
         this.socket = new DatagramSocket(port);
 
-
-
-
-        /*
-            adicionar o processo atual nessa lista tbm, pq ai no recebimento conseguimos saber pelo host:port qual é o id
-            do processo que enviou
-        */
+        new ReceiveMessage(this).start();
 
     }
 
