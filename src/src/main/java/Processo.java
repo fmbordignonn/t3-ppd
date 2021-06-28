@@ -88,6 +88,7 @@ public final class Processo extends Thread {
 
                 } catch (IOException ex) {
                     System.out.println("Erro ao enviar msg para host remoto: " + ex.getMessage());
+                    System.out.println("Procedendo com evento local");
                 }
 
                 continue;
@@ -102,6 +103,8 @@ public final class Processo extends Thread {
                 ex.printStackTrace();
             }
         }
+
+        System.exit(1);
     }
 
 

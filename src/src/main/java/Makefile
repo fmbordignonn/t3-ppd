@@ -1,11 +1,11 @@
-all:			Processo.class ReceiveMessage.class \
+all:		ReceiveMessage.class Processo.class \
 			Main.class
-
-Processo.class:	Processo.java
-			@javac Processo.java
 
 ReceiveMessage.class: ReceiveMessage.java
 			@javac ReceiveMessage.java
+
+Processo.class:	Processo.java
+			@javac Processo.java
 
 Main.class:	Main.java
 			@javac Main.java

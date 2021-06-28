@@ -14,17 +14,16 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-
-        args = new String[1];
+        //args = new String[1];
         //args[0] = "0";
         //args[0] = "1";
         //args[0] = "2";
         //args[0] = "3";
         //args[0] = "4";
-        args[0] = "server";
-//        if (args.length < 1) {
-//            throw new RuntimeException("args invalido");
-//        }
+        //args[0] = "server";
+        if (args.length < 1) {
+            throw new RuntimeException("args invalido");
+        }
 
         MulticastSocket multicastSocket = new MulticastSocket(5000);
         InetAddress grupo = InetAddress.getByName("230.0.0.1");
