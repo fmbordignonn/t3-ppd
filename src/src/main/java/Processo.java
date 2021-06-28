@@ -23,7 +23,6 @@ public final class Processo extends Thread {
     private final DatagramSocket socket;
 
     private DatagramPacket packet;
-    private final byte[] packetBytes = new byte[4028];
 
     private final String[] otherHosts;
     private final int[] otherPorts;
@@ -63,7 +62,7 @@ public final class Processo extends Thread {
         for (int i = 0; i < eventCount; i++) {
             delay = ThreadLocalRandom.current().nextInt(minDelay, maxDelay);
 
-            relogio[idProcesso] = relogio[idProcesso]++;
+            relogio[idProcesso] = relogio[idProcesso] +=1;
 
             //revisar dps
             if (ThreadLocalRandom.current().nextDouble(0, 1) < chance) {
@@ -79,8 +78,11 @@ public final class Processo extends Thread {
                             " Envio de mensagem " + Arrays.toString(this.relogio) +
                             " ID destinatário: " + destination);
 
-                    packet = new DatagramPacket(Arrays.toString(relogio).getBytes(), packetBytes.length,
-                            InetAddress.getByName(otherHosts[destination]), otherPorts[destination]);
+                    byte[] message = Arrays.toString(relogio).getBytes();
+
+                    packet = new DatagramPacket(message, message.length,
+                            InetAddress.getByName("localhost"),
+                            otherPorts[destination]);
 
                     socket.send(packet);
 
@@ -141,10 +143,6 @@ public final class Processo extends Thread {
 
     public DatagramPacket getPacket() {
         return packet;
-    }
-
-    public byte[] getPacketBytes() {
-        return packetBytes;
     }
 
     public String[] getOtherHosts() {
