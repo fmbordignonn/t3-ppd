@@ -17,13 +17,16 @@ import java.util.stream.Collectors;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        if(args.length < 1){
-            throw new RuntimeException("args invalido");
-        }
-
+        args = new String[1];
+        //args[0] = "1";
+        //args[0] = "3";
+        args[0] = "server";
+//        if (args.length < 1) {
+//            throw new RuntimeException("args invalido");
+//        }
 
         MulticastSocket multicastSocket = new MulticastSocket(4000);
-        InetAddress grupo = InetAddress.getByName("localhost");
+        InetAddress grupo = InetAddress.getByName("230.0.0.1");
         multicastSocket.joinGroup(grupo);
         multicastSocket.setSoTimeout(100000);
 
@@ -31,7 +34,7 @@ public class Main {
         int processCount = lines.size();
         int processID = 0;
 
-        try{
+        try {
             processID = Integer.parseInt(args[0]);
         } catch (NumberFormatException ex) {
             System.out.println("I'm a coordenator");
@@ -54,8 +57,8 @@ public class Main {
         for (int i = 0; i < lines.size(); i++) {
             String[] split = lines.get(i).split(" ");
 
-            host = split[0];
-            port = Integer.parseInt(split[1]);
+            host = split[1];
+            port = Integer.parseInt(split[2]);
 
             otherHosts[i] = host;
             otherPorts[i] = port;
@@ -78,7 +81,7 @@ public class Main {
         DatagramPacket pacote = new DatagramPacket(bytes, bytes.length, grupo, 5000);
         multicastSocket.send(pacote);
 
-        while(true) {
+        while (true) {
             try {
                 bytes = new byte[1024];
                 pacote = new DatagramPacket(bytes, bytes.length);
@@ -92,7 +95,7 @@ public class Main {
                     System.out.println("");
                     continue;
                 }
-            }catch (Exception ex) {
+            } catch (Exception ex) {
                 continue;
             }
         }
@@ -110,7 +113,7 @@ public class Main {
 
 
         // processCount + 1 because coordenator also join the group
-        while(joinedProcess != processCount + 1) {
+        while (joinedProcess != processCount + 1) {
 
             entrada = new byte[1024];
             receivedPacket = new DatagramPacket(entrada, entrada.length);
