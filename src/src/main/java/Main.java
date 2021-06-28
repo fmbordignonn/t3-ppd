@@ -18,6 +18,9 @@ public class Main {
         args = new String[1];
         //args[0] = "0";
         //args[0] = "1";
+        //args[0] = "2";
+        //args[0] = "3";
+        //args[0] = "4";
         args[0] = "server";
 //        if (args.length < 1) {
 //            throw new RuntimeException("args invalido");

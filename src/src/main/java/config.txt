@@ -1,2 +1,5 @@
-0 localhost 5002 0.8 5 300 350
-1 localhost 5006 0.6 5 150 550
+0 localhost 5002 0.8 100 300 350
+1 localhost 5004 0.2 120 100 550
+2 localhost 5006 0.2 243 123 750
+3 localhost 5008 0.1 50 222 555
+4 localhost 5010 0.5 51 333 666
