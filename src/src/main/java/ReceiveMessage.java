@@ -18,6 +18,8 @@ public class ReceiveMessage extends Thread {
 
     @Override
     public void run() {
+        System.out.println("Iniciando ReceiveMessage thread");
+
         while (true) {
             try {
                 byte[] bytesPacote = new byte[1024];
