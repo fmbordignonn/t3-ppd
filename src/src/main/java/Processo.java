@@ -107,6 +107,7 @@ public final class Processo extends Thread {
             }
         }
 
+        socket.close();
         System.exit(1);
     }
 
