@@ -70,7 +70,7 @@ public final class Processo extends Thread {
                 do {
                     destination = ThreadLocalRandom.current().nextInt(otherHosts.length);
                 }
-                while (destination == idProcesso);
+                while (destination == idProcesso || (otherHosts[destination].equals("-1")));
 
                 try {
 
@@ -81,7 +81,7 @@ public final class Processo extends Thread {
                     byte[] message = Arrays.toString(relogio).getBytes();
 
                     packet = new DatagramPacket(message, message.length,
-                            InetAddress.getByName("localhost"),
+                            InetAddress.getByName(otherHosts[destination]),
                             otherPorts[destination]);
 
                     socket.send(packet);
@@ -89,6 +89,9 @@ public final class Processo extends Thread {
                 } catch (IOException ex) {
                     System.out.println("Erro ao enviar msg para host remoto: " + ex.getMessage());
                     System.out.println("Procedendo com evento local");
+
+                    otherHosts[destination] = "-1";
+                    otherPorts[destination] = -1;
                 }
 
                 continue;
