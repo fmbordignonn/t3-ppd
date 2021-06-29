@@ -44,8 +44,6 @@ public class ReceiveMessage extends Thread {
                         .toArray();
 
 
-                System.out.println("Print do recebimento de evento");
-
                 //soma evento
                 this.process.getRelogio()[this.process.getIdProcesso()] =
                         this.process.getRelogio()[this.process.getIdProcesso()]++;
@@ -58,6 +56,20 @@ public class ReceiveMessage extends Thread {
                     //pega do array
                     this.process.getRelogio()[i] = receivedClock[i];
                 }
+
+                int senderIndex = 0;
+
+                for (int i = 0; i < this.process.getOtherPorts().length; i++) {
+                    if (senderProcessPort == this.process.getOtherPorts()[i]) {
+                        senderIndex = i;
+                        break;
+                    }
+                }
+
+                System.out.println("Id local (i): " + this.process.getIdProcesso() +
+                        " Relogio depois recebimento: " + Arrays.toString(this.process.getRelogio()) +
+                        " Id remetente (s): " + senderIndex +
+                        " Valor relógio recebido com a mensagem: " + Arrays.toString(receivedClock));
 
             } catch (IOException e) {
                 //e.printStackTrace();
